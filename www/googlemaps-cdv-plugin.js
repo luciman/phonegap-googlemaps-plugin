@@ -549,6 +549,10 @@ App.prototype.setMyLocationEnabled = function(enabled) {
     enabled = parseBoolean(enabled);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setMyLocationEnabled', enabled]);
 };
+App.prototype.setMyLocationButtonEnabled = function(enabled) {
+    enabled = parseBoolean(enabled);
+    cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setMyLocationButtonEnabled', enabled]);
+};
 App.prototype.setIndoorEnabled = function(enabled) {
     enabled = parseBoolean(enabled);
     cordova.exec(null, this.errorHandler, PLUGIN_NAME, 'exec', ['Map.setIndoorEnabled', enabled]);

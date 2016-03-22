@@ -34,7 +34,15 @@
   Boolean isEnabled = [[command.arguments objectAtIndex:1] boolValue];
   self.mapCtrl.map.settings.myLocationButton = isEnabled;
   self.mapCtrl.map.myLocationEnabled = isEnabled;
-  
+
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void)setMyLocationButtonEnabled:(CDVInvokedUrlCommand *)command {
+  Boolean isEnabled = [[command.arguments objectAtIndex:1] boolValue];
+  self.mapCtrl.map.settings.myLocationButton = isEnabled;
+
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
