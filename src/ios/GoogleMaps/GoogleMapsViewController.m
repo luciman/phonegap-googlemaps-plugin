@@ -227,17 +227,6 @@ NSDictionary *initOptions;
 
     [self.view addSubview: self.map];
 
-    // Attach an additional click handler
-    for(UIGestureRecognizer *g in self.map.gestureRecognizers){
-        [g addTarget:self action:@selector(tapTouchTap:)];
-    }
-}
-
-- (void)tapTouchTap:(UITapGestureRecognizer*)touchGesture
-{
-    CGPoint point = [touchGesture locationInView:self.view];
-    self.lastTapCoordinate = [self.map.projection coordinateForPoint:point];
-
     dispatch_async(dispatch_get_main_queue(), ^{
       if (cameraBounds != nil) {
         float scale = 1;
@@ -257,6 +246,17 @@ NSDictionary *initOptions;
 
       }
     });
+
+    // Attach an additional click handler
+    for(UIGestureRecognizer *g in self.map.gestureRecognizers){
+        [g addTarget:self action:@selector(tapTouchTap:)];
+    }
+}
+
+- (void)tapTouchTap:(UITapGestureRecognizer*)touchGesture
+{
+    CGPoint point = [touchGesture locationInView:self.view];
+    self.lastTapCoordinate = [self.map.projection coordinateForPoint:point];
 }
 
 
