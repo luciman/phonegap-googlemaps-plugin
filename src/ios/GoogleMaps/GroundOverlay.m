@@ -82,7 +82,7 @@
 - (void)_setImage:(GMSGroundOverlay *)layer urlStr:(NSString *)urlStr completionHandler:(MYCompletionHandler)completionHandler {
 
   NSString *id = [NSString stringWithFormat:@"groundOverlay_icon_%lu", (unsigned long)layer.hash];
-  
+
   NSError *error;
 
   // First check for base64
@@ -95,92 +95,70 @@
     completionHandler(nil);
     return;
   }
+  
+  range = [urlStr rangeOfString:@"cdvfile://"];
+  if (range.location != NSNotFound) {
+      urlStr = [PluginUtil getAbsolutePathFromCDVFilePath:self.webView cdvFilePath:urlStr];
+      if (urlStr == nil) {
+          NSMutableDictionary* details = [NSMutableDictionary dictionary];
+          [details setValue:[NSString stringWithFormat:@"Can not convert '%@' to device full path.", urlStr] forKey:NSLocalizedDescriptionKey];
+          error = [NSError errorWithDomain:@"world" code:200 userInfo:details];
+      }
+  }
+
 
   range = [urlStr rangeOfString:@"://"];
   if (range.location == NSNotFound) {
-    range = [urlStr rangeOfString:@"www/"];
-    if (range.location == NSNotFound) {
-        range = [urlStr rangeOfString:@"www/"];
-        if (range.location == NSNotFound) {
-            range = [urlStr rangeOfString:@"/"];
-            if (range.location != 0) {
-                urlStr = [NSString stringWithFormat:@"./%@", urlStr];
-            }
-        }
-    }
+      range = [urlStr rangeOfString:@"www/"];
+      if (range.location == NSNotFound) {
+          urlStr = [NSString stringWithFormat:@"www/%@", urlStr];
+      }
+
+      range = [urlStr rangeOfString:@"/"];
+      if (range.location != 0) {
+        // Get the absolute path of the www folder.
+        // https://github.com/apache/cordova-plugin-file/blob/1e2593f42455aa78d7fff7400a834beb37a0683c/src/ios/CDVFile.m#L506
+        NSString *applicationDirectory = [[NSURL fileURLWithPath:[[NSBundle mainBundle] resourcePath]] absoluteString];
+        urlStr = [NSString stringWithFormat:@"%@%@", applicationDirectory, urlStr];
+      } else {
+        urlStr = [NSString stringWithFormat:@"file://%@", urlStr];
+      }
   }
 
-    range = [urlStr rangeOfString:@"./"];
-    if (range.location != NSNotFound) {
-		SEL requestSelector = NSSelectorFromString(@"request");
-		SEL urlSelector = NSSelectorFromString(@"URL");
-		NSString *currentPath = @"";
-		if ([self.webView respondsToSelector:requestSelector]) {
-			NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[[self.webView class] instanceMethodSignatureForSelector:requestSelector]];
-			[invocation setSelector:requestSelector];
-			[invocation setTarget:self.webView];
-			[invocation invoke];
-			NSURLRequest *request;
-			[invocation getReturnValue:&request];
-			currentPath = [request.URL absoluteString];
-		} else if ([self.webView respondsToSelector:urlSelector]) {
-			NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[[self.webView class] instanceMethodSignatureForSelector:urlSelector]];
-			[invocation setSelector:urlSelector];
-			[invocation setTarget:self.webView];
-			[invocation invoke];
-			NSURL *URL;
-			[invocation getReturnValue:&URL];
-			currentPath = [URL absoluteString];
-		}
-        NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"[^\\/]*$" options:NSRegularExpressionCaseInsensitive error:&error];
-        currentPath= [regex stringByReplacingMatchesInString:currentPath options:0 range:NSMakeRange(0, [currentPath length]) withTemplate:@""];
-        urlStr = [urlStr stringByReplacingOccurrencesOfString:@"./" withString:currentPath];
-    }
+  range = [urlStr rangeOfString:@"file://"];
+  if (range.location != NSNotFound) {
+      urlStr = [urlStr stringByReplacingOccurrencesOfString:@"file://" withString:@""];
+      NSFileManager *fileManager = [NSFileManager defaultManager];
+      if (![fileManager fileExistsAtPath:urlStr]) {
+          NSMutableDictionary* details = [NSMutableDictionary dictionary];
+          [details setValue:[NSString stringWithFormat:@"There is no file at '%@'.", urlStr] forKey:NSLocalizedDescriptionKey];
+          error = [NSError errorWithDomain:@"world" code:200 userInfo:details];
+      }
+  }
 
-    range = [urlStr rangeOfString:@"cdvfile://"];
-    if (range.location != NSNotFound) {
-        urlStr = [PluginUtil getAbsolutePathFromCDVFilePath:self.webView cdvFilePath:urlStr];
-        if (urlStr == nil) {
-            NSMutableDictionary* details = [NSMutableDictionary dictionary];
-            [details setValue:[NSString stringWithFormat:@"Can not convert '%@' to device full path.", urlStr] forKey:NSLocalizedDescriptionKey];
-            error = [NSError errorWithDomain:@"world" code:200 userInfo:details];
-        }
-    }
-
-    range = [urlStr rangeOfString:@"file://"];
-    if (range.location != NSNotFound) {
-        urlStr = [urlStr stringByReplacingOccurrencesOfString:@"file://" withString:@""];
-        NSFileManager *fileManager = [NSFileManager defaultManager];
-        if (![fileManager fileExistsAtPath:urlStr]) {
-            NSMutableDictionary* details = [NSMutableDictionary dictionary];
-            [details setValue:[NSString stringWithFormat:@"There is no file at '%@'.", urlStr] forKey:NSLocalizedDescriptionKey];
-            error = [NSError errorWithDomain:@"world" code:200 userInfo:details];
-        }
-    }
-
-    // If there is an error, return
-    if (error) {
-        completionHandler(error);
-        return;
-    }
+  // If there is an error, return
+  if (error) {
+      completionHandler(error);
+      return;
+  }
 
 
 
-    if ([urlStr hasPrefix:@"http://"] || [urlStr hasPrefix:@"https://"]) {
-        dispatch_queue_t gueue = dispatch_queue_create("GoogleMap_createGroundOverlay", NULL);
-        dispatch_sync(gueue, ^{
-            NSURL *url = [NSURL URLWithString:urlStr];
-            NSData *data = [NSData dataWithContentsOfURL:url];
-            UIImage *layerImg = [UIImage imageWithData:data];
-            layer.icon = layerImg;
-            [self.mapCtrl.overlayManager setObject:layerImg forKey: id];
-            completionHandler(nil);
-        });
-    } else {
-        layer.icon = [UIImage imageNamed:urlStr];
-        [self.mapCtrl.overlayManager setObject:layer.icon forKey: id];
-        completionHandler(nil);
-    }
+  if ([urlStr hasPrefix:@"http://"] || [urlStr hasPrefix:@"https://"]) {
+      dispatch_queue_t gueue = dispatch_queue_create("GoogleMap_createGroundOverlay", NULL);
+      dispatch_sync(gueue, ^{
+          NSURL *url = [NSURL URLWithString:urlStr];
+          NSData *data = [NSData dataWithContentsOfURL:url];
+          UIImage *layerImg = [UIImage imageWithData:data];
+          layer.icon = layerImg;
+          [self.mapCtrl.overlayManager setObject:layerImg forKey: id];
+          completionHandler(nil);
+      });
+  } else {
+      layer.icon = [UIImage imageNamed:urlStr];
+      [self.mapCtrl.overlayManager setObject:layer.icon forKey: id];
+      completionHandler(nil);
+  }
 }
 
 /**
