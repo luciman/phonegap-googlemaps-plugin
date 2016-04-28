@@ -693,6 +693,7 @@
                 range = [iconPath rangeOfString:@"file://"];
                 if (range.location != NSNotFound) {
                     iconPath = [iconPath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
+		    iconPath = [iconPath stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
                     NSFileManager *fileManager = [NSFileManager defaultManager];
                     if (![fileManager fileExistsAtPath:iconPath]) {
                         if (self.mapCtrl.debuggable) {
