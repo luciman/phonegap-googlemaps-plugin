@@ -90,7 +90,10 @@
   if(range.location != NSNotFound) {
     int chop = range.location + range.length;
     NSData *data = [[NSData alloc]initWithBase64EncodedString:[urlStr substringFromIndex:chop] options:NSDataBase64DecodingIgnoreUnknownCharacters];
-    layer.icon = [UIImage imageWithData:data];
+
+    CGFloat screenScale = [[UIScreen mainScreen] scale];
+    layer.icon = [UIImage imageWithData:data scale:screenScale];
+
     [self.mapCtrl.overlayManager setObject:layer.icon forKey: id];
     completionHandler(nil);
     return;
