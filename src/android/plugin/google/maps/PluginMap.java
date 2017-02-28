@@ -60,7 +60,7 @@ public class PluginMap extends MyPlugin {
         settings.setIndoorLevelPickerEnabled(controls.getBoolean("indoorPicker"));
       }
       if (controls.has("myLocationButton")) {
-        settings.setMyLocationButtonEnabled(controls.getBoolean("myLocationButton"));
+        map.getUiSettings().setMyLocationButtonEnabled(controls.getBoolean("myLocationButton"));
       }
     }
     
@@ -147,17 +147,6 @@ public class PluginMap extends MyPlugin {
 
     if (params.has("controls")) {
       JSONObject controls = params.getJSONObject("controls");
-
-      if (controls.has("myLocationButton")) {
-        isEnabled = controls.getBoolean("myLocationButton");
-        JSONArray args2 = new JSONArray();
-        args2.put("Map.setMyLocationEnabled");
-        args2.put(isEnabled);
-        this.setMyLocationEnabled(args2, callbackContext);
-
-      } else {
-        this.sendNoResult(callbackContext);
-      }
     } else {
       this.sendNoResult(callbackContext);
     }
@@ -401,33 +390,6 @@ public class PluginMap extends MyPlugin {
     this.sendNoResult(callbackContext);
   }
 
-  /**
-   * Enable MyLocation feature if set true
-   * @param args
-   * @param callbackContext
-   * @throws JSONException
-   */
-  @SuppressWarnings("unused")
-  private void setMyLocationButtonEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    Boolean isEnabled = false;
-    isEnabled = args.getBoolean(1);
-    map.getUiSettings().setMyLocationButtonEnabled(isEnabled);
-    this.sendNoResult(callbackContext);
-  }
-
-
-  public void onRequestPermissionResult(int requestCode, String[] permissions,
-                                        int[] grantResults) throws JSONException {
-    PluginResult result;
-    for (int r : grantResults) {
-      if (r == PackageManager.PERMISSION_DENIED) {
-        result = new PluginResult(PluginResult.Status.ERROR, "Geolocation permission request was denied.");
-        _saveCallbackContext.sendPluginResult(result);
-        return;
-      }
-    }
-    setMyLocationEnabled(_saveArgs, _saveCallbackContext);
-  }
 
   /**
    * Enable Indoor map feature if set true
