@@ -2680,7 +2680,7 @@ window.addEventListener("orientationchange", function() {
 
 
 function getAllChildren(root) {
-console.log("cCCCCC");
+
     var list = [];
     var clickable;
     var style, displayCSS, opacityCSS, visibilityCSS, clickableSize;
