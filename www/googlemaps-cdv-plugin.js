@@ -2680,17 +2680,21 @@ window.addEventListener("orientationchange", function() {
 
 
 function getAllChildren(root) {
+console.log("cCCCCC");
     var list = [];
     var clickable;
-    var style, displayCSS, opacityCSS, visibilityCSS;
+    var style, displayCSS, opacityCSS, visibilityCSS, clickableSize;
     var search = function(node) {
         while (node != null) {
             if (node.nodeType == 1) {
                 style = window.getComputedStyle(node);
-                visibilityCSS = style.getPropertyValue('visibility');
-                displayCSS = style.getPropertyValue('display');
-                opacityCSS = style.getPropertyValue('opacity');
-                if (displayCSS !== "none" && opacityCSS > 0 && visibilityCSS != "hidden") {
+                visibilityCSS = getStyle(node, 'visibility');
+                displayCSS = getStyle(node, 'display');
+                opacityCSS = getStyle(node, 'opacity');
+		heightCSS = getStyle(node, 'height');
+		widthCSS = getStyle(node, 'width');
+		clickableSize = (heightCSS != "0px" && widthCSS != "0px" && node.clientHeight > 0 && node.clientWidth > 0);
+                if (displayCSS !== "none" && opacityCSS > 0 && visibilityCSS != "hidden" && clickableSize) {
                     clickable = node.getAttribute("data-clickable");
                     if (clickable &&
                         clickable.toLowerCase() === "false" &&
@@ -2708,6 +2712,17 @@ function getAllChildren(root) {
         search(root.childNodes[i]);
     }
     return list;
+}
+
+
+function getStyle(element, styleProperty)
+{
+    if (window.getComputedStyle) {
+        return document.defaultView.getComputedStyle(element,null).getPropertyValue(styleProperty);
+    } else if (element.currentStyle) {
+      return element.currentStyle[styleProperty];
+    }
+    return;
 }
 
 

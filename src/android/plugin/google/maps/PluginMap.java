@@ -636,3 +636,4 @@ public class PluginMap extends MyPlugin {
     this.sendNoResult(callbackContext);
   }
 }
+

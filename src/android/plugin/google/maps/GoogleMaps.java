@@ -2178,4 +2178,3 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
   }
 
 }
-

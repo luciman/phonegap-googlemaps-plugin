@@ -62,9 +62,6 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
         if (opts.has("visible")) {
             polygonOptions.visible(opts.getBoolean("visible"));
         }
-        if (opts.has("clickable")) {
-            polygonOptions.visible(opts.getBoolean("clickable"));
-        }
         if (opts.has("geodesic")) {
             polygonOptions.geodesic(opts.getBoolean("geodesic"));
         }

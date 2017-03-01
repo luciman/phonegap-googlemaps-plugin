@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Locale;
 
-@SuppressWarnings("deprecation")
 public class AsyncKmlParser extends AsyncTask<String, Void, Bundle> {
   private XmlPullParser parser;
   private GoogleMaps mMapCtrl;
