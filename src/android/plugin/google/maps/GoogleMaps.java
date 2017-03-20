@@ -1429,6 +1429,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       double threshold = this.calculateDistance(
           projection.fromScreenLocation(origin),
           projection.fromScreenLocation(hitArea));
+      double zoom = map.getCameraPosition().zoom;
 
       for (HashMap.Entry<String, Object> entry : polylineClass.objects.entrySet()) {
         key = entry.getKey();
@@ -1441,7 +1442,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
             points = polyline.getPoints();
 
             if (polyline.isGeodesic()) {
-              if (this.isPointOnTheGeodesicLine(points, point, threshold)) {
+              if (this.isPointOnTheGeodesicLine(points, point, threshold, zoom)) {
                 hitPoly = true;
                 this.onPolylineClick(polyline, point);
               }
@@ -1535,7 +1536,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
    * @param threshold
    * @return
    */
-  private boolean isPointOnTheGeodesicLine(List<LatLng> points, LatLng point, double threshold) {
+  private boolean isPointOnTheGeodesicLine(List<LatLng> points, LatLng point, double threshold, double zoom) {
     double trueDistance, testDistance1, testDistance2;
     Point p0, p1, touchPoint;
     touchPoint = new Point();
@@ -1553,7 +1554,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
       testDistance1 = this.calculateDistance(points.get(i), point);
       testDistance2 = this.calculateDistance(point, points.get(i + 1));
       // the distance is exactly same if the point is on the straight line
-      if (Math.abs(trueDistance - (testDistance1 + testDistance2)) < threshold) {
+      if (Math.abs(trueDistance - (testDistance1 + testDistance2)) < threshold*(22 - zoom)) {
         return true;
       }
     }
