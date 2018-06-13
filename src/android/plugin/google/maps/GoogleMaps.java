@@ -1396,7 +1396,7 @@ public class GoogleMaps extends CordovaPlugin implements View.OnClickListener, O
     LatLngBounds bounds;
 
     // Polyline
-    PluginEntry polylinePlugin = this.plugins.get("Polyline");
+    PluginEntry polylinePlugin = this.plugins.get("PolylineGM");
     if(polylinePlugin != null) {
       PluginPolylineGM polylineClass = (PluginPolylineGM) polylinePlugin.plugin;
 
