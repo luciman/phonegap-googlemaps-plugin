@@ -188,7 +188,7 @@
             <string>$API_KEY_FOR_IOS</string>
         </config-file>
         <config-file target="*-Info.plist" parent="NSLocationWhenInUseUsageDescription">
-            <string>Show your location on the map</string>
+            <string>This app wants to get your location while this app runs only, to calculate the distance to the points of interest and to show user location on the map</string>
         </config-file>
         <config-file target="*-Info.plist" parent="NSLocationAlwaysUsageDescription">
             <string>Trace your location on the map</string>
